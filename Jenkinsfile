@@ -6,7 +6,7 @@ pipeline {
     steps {
 
   git branch: "main",
-  url: "https://github.com/Shrikant155/ec2-cicd-deploy-web",
+  url: "https://github.com/Shrikant155/ec2-cicd-deploy-web.git",
   credentialsId:"github-cred-id"
 
 
