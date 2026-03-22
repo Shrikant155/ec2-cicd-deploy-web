@@ -6,8 +6,9 @@ pipeline {
     steps {
 
   git branch: "main",
-  url: "https://github.com/Shrikant155/dockerfile-project2",
-  credentialsId: "git-cred-id"
+  url: "https://github.com/Shrikant155/ec2-cicd-deploy-web",
+  credentialsId:"github-cred-id"
+
 
        }
    }
