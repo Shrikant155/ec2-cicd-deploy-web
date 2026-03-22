@@ -47,8 +47,8 @@ pipeline {
        sshagent(['ec2-key']){
           sh '''
           ssh -o StrictHostKeyChecking=no ec2-user@13.61.174.172 " 
-          docker rm -f myweb2 || true
-          docker pull shrikant155/webapp2:latest
+          docker rm -f myweb2 || true &&
+          docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  -- name myweb2 shrikant155/webapp2:latest
            "  
           '''
