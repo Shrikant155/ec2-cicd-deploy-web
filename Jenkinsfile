@@ -15,7 +15,7 @@ environment {
 
       }
        }
-stage('Terraform Init') {
+      stage('Terraform Init & Sync') {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
@@ -23,35 +23,22 @@ stage('Terraform Init') {
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
-                    // 1. Initialize 
-                   dir('terraform-aws') {
-                    sh 'terraform init'
-                    }
-                    // 2. Fix "Bucket Already Exists" error by importing it if missing from state
-                    script {
-                        def bucketName = "shrik-s3-bucket-96741"
-                        sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Bucket already in state or not found'"
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-cred-id',
-                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                ]]) {
-                    // Apply will only create if the resources don't exist in the state
                     dir('terraform-aws') {
-                      sh 'terraform apply -auto-approve'
+                        // 1. Initialize
+                        sh 'terraform init'
+                        
+                        // 2. Import S3 if it already exists to prevent "409 Conflict"
+                        script {
+                            def bucketName = "shrik-s3-bucket-96741"
+                            sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Bucket already managed or doesn't exist yet'"
+                            sh 'terraform apply'
+                          }
+                    }
                 }
-             }
-            }
-        }
  
+             }
+           }
+            
  stage('build imgage') {
      steps {
 
