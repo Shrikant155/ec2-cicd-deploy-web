@@ -25,33 +25,15 @@ stage('Terraform Init') {
         ]]) {
             dir('terraform-aws') {
                 // Initialize the working directory
+
                 sh 'terraform init'
-                
-                script {
-                    // Logic to 'claim' an existing S3 bucket into state if it was created manually or by a lost state
-                    def bucketName = "shrik-s3-bucket-96741"
-                    sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Bucket already in state or not found'"
-                }
-            }
-        }
-    }
+              sh 'terraform apply -auto-approve'
+}
+}
+}
 }
 
-stage('Terraform Apply') {
-    steps {
-        withCredentials([[
-            $class: 'AmazonWebServicesCredentialsBinding',
-            credentialsId: 'aws-cred-id',
-            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-        ]]) {
-            dir('terraform-aws') {
-                // This will check the state. If resources match reality, it adds 0 resources.
-                sh 'terraform apply -auto-approve'
-            }
-        }
-    }
-}            
+
  stage('build imgage') {
      steps {
 
