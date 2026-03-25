@@ -99,7 +99,7 @@ script {
             echo "Target IP: ${ec2_ip}"
        sshagent(['ec2-key']){
           sh """
-          ssh -o StrictHostKeyChecking=no ec2-user@$ec2_ip " 
+          ssh -o StrictHostKeyChecking=no ec2-user@13.61.186.196 " 
           docker rm -f myweb2 || true &&
           docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  --name myweb2 shrikant155/webapp2:latest
