@@ -15,7 +15,7 @@ environment {
 
       }
        }
-stage('Terraform Init') {
+stage('Terraform') {
     steps {
         withCredentials([[
             $class: 'AmazonWebServicesCredentialsBinding',
@@ -23,16 +23,14 @@ stage('Terraform Init') {
             accessKeyVariable: 'AWS_ACCESS_KEY_ID',
             secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
-            dir('terraform-aws') {
-                // Initialize the working directory
-
+            // Use 'dir' to point to the folder containing your .tf files
+            dir('terraform-aws') { 
                 sh 'terraform init'
-    sh 'terraform destroy'    
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
 }
-}
-}
-}
-
 
  stage('build imgage') {
      steps {
