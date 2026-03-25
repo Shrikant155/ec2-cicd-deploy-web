@@ -85,10 +85,18 @@ stage('Terraform Apply') {
      }
     stage('deploy to ec2'){
        steps{
-            script {
-                    // Get the EC2 public IP from Terraform output
-                    def ec2_ip = sh(script: "cd terraform-aws && terraform output -raw ec2_public_ip", returnStdout: true).trim()
-                    echo "EC2 IP: ${ec2_ip}"
+script {
+            def ec2_ip = ""
+            dir('terraform-aws') {
+                // Get the raw IP from the output we just defined
+                ec2_ip = sh(script: "terraform output -raw ec2_public_ip", returnStdout: true).trim()
+            }
+            
+            if (ec2_ip == "" || ec2_ip.contains("Warning")) {
+                error "Could not find EC2 IP. Check if Terraform Apply was successful."
+            }
+
+            echo "Target IP: ${ec2_ip}"
        sshagent(['ec2-key']){
           sh '''
           ssh -o StrictHostKeyChecking=no ec2-user@${ec2_ip} " 
@@ -102,8 +110,6 @@ stage('Terraform Apply') {
        }
     }
 
-
-    }
-
+}
 }
 }
