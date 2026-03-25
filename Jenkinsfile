@@ -1,6 +1,9 @@
 pipeline {
     agent any
- 
+environment {
+        // This binds the keys to the standard Terraform environment variables
+        AWS_CREDS = credentials('aws-cred-id')
+    } 
   stages {
 
   stage('Checkout') {
@@ -13,25 +16,20 @@ pipeline {
 
        }
    }
- stage('terraform init and apply') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'aws-cred-id',
-            usernameVariable: 'AWS_ACCESS_KEY_ID',
-            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-        )]) {
-            dir('terraform-aws') {
-                sh '''
-                export AWS_DEFAULT_REGION=eu-north-1
-                terraform init
-                terraform apply -auto-approve
-                '''
+stage('Terraform') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: 'aws-cred-id', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
-    }
-}
-
-stage('build image') {
+ stage('build imgage') {
      steps {
 
       sh "docker build -t webapp2 ."
