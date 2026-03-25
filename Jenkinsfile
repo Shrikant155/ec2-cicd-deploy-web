@@ -27,7 +27,7 @@ stage('Terraform Init') {
                 // Initialize the working directory
 
                 sh 'terraform init'
-              sh 'terraform apply -auto-approve'
+        
 }
 }
 }
