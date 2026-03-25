@@ -1,11 +1,6 @@
 pipeline {
     agent any
- environment {
- AWS_ACCESS_KEY_ID = credentials('aws-cred-id')    
-        AWS_SECRET_ACCESS_KEY = credentials('aws-cred-id')
-   AWS_REGION = "eu-north-1"
-        
-    }
+ 
   stages {
 
   stage('Checkout') {
@@ -18,18 +13,25 @@ pipeline {
 
        }
    }
-  stage('terraform init and apply') {
-      steps {
-    dir('terraform-aws') {
-      sh 'terraform init'
-      sh 'terraform apply -auto-approve'
+ stage('terraform init and apply') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'aws-cred-id',
+            usernameVariable: 'AWS_ACCESS_KEY_ID',
+            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+        )]) {
+            dir('terraform-aws') {
+                sh '''
+                export AWS_DEFAULT_REGION=eu-north-1
+                terraform init
+                terraform apply -auto-approve
+                '''
+            }
+        }
+    }
+}
 
-      }
- 
-     }
- 
-  } 
-  stage('build') {
+stage('build image') {
      steps {
 
       sh "docker build -t webapp2 ."
