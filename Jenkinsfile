@@ -86,20 +86,20 @@ stage('Terraform Apply') {
     stage('deploy to ec2'){
        steps{
 script {
-            def ec2_ip = ""
+            
             dir('terraform-aws') {
                 // Get the raw IP from the output we just defined
-                ec2_ip = sh(script: "terraform output -raw ec2_public_ip", returnStdout: true).trim()
+               env.ec2_ip = sh(script: "terraform output -raw ec2_public_ip", returnStdout: true).trim()
             }
             
-            if (ec2_ip == "" || ec2_ip.contains("Warning")) {
+            if (env.ec2_ip == "" || env.ec2_ip.contains("Warning")) {
                 error "Could not find EC2 IP. Check if Terraform Apply was successful."
             }
 
-            echo "Target IP: ${ec2_ip}"
+            echo "Target IP: ${env.ec2_ip}"
        sshagent(['ec2-key']){
           sh """
-          ssh -o StrictHostKeyChecking=no ec2-user@$ec2_ip " 
+          ssh -o StrictHostKeyChecking=no ec2-user@${env.ec2_ip} " 
           docker rm -f myweb2 || true &&
           docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  --name myweb2 shrikant155/webapp2:latest
