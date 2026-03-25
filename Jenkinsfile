@@ -15,29 +15,31 @@ environment {
 
       }
        }
-      stage('Terraform Init & Sync') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-cred-id',
-                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-                ]]) {
-                    dir('terraform-aws') {
-                        // 1. Initialize
-                        sh 'terraform init'
-                        
-                        // 2. Import S3 if it already exists to prevent "409 Conflict"
-                        script {
-                            def bucketName = "shrik-s3-bucket-96741"
-                            sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Bucket already managed or doesn't exist yet'"
-                            sh 'terraform apply'
-                          }
-                    }
-                }
- 
-             }
-           }
+stage('Terraform') {
+    steps {
+        withCredentials([[
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-cred-id',
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+            // Use 'dir' to point to the folder containing your .tf files
+            dir('terraform-aws') { 
+                sh 'terraform init'
+                  script {
+            // Check if resource is already in state
+            def stateCheck = sh(script: "terraform state list | grep aws_s3_bucket.my_bucket", returnStatus: true)
+            
+            if (stateCheck != 0) {
+                // If not in state, attempt to import (ignore error if already imported)
+                sh "terraform import aws_s3_bucket.my_bucket shrik-s3-bucket-96741 || true"
+            }
+            sh "terraform apply -auto-approve"
+              }
+            }
+        }
+    }
+}
             
  stage('build imgage') {
      steps {
