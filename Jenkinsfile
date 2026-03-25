@@ -24,11 +24,13 @@ stage('Terraform') {
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
+ dir('terraform-aws'){
                     sh 'terraform init'
                     sh 'terraform apply -auto-approve'
                 }
             }
         }
+}
  stage('build imgage') {
      steps {
 
