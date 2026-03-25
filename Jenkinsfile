@@ -23,9 +23,10 @@ stage('Terraform Init') {
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
-                    // 1. Initialize
+                    // 1. Initialize 
+                   dir('terraform-aws') {
                     sh 'terraform init'
-                    
+                    }
                     // 2. Fix "Bucket Already Exists" error by importing it if missing from state
                     script {
                         def bucketName = "shrik-s3-bucket-96741"
@@ -44,8 +45,10 @@ stage('Terraform Init') {
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
                     // Apply will only create if the resources don't exist in the state
-                    sh 'terraform apply -auto-approve'
+                    dir('terraform-aws') {
+                      sh 'terraform apply -auto-approve'
                 }
+             }
             }
         }
  
