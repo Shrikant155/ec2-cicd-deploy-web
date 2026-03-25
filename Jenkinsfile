@@ -13,24 +13,42 @@ environment {
   url: "https://github.com/Shrikant155/ec2-cicd-deploy-web.git",
   credentialsId:"github-cred-id"
 
-
+      }
        }
-   }
-stage('Terraform') {
+stage('Terraform Init') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
-                    credentialsId: 'aws-cred-id', 
-                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-cred-id',
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
                 ]]) {
- dir('terraform-aws'){
+                    // 1. Initialize
                     sh 'terraform init'
+                    
+                    // 2. Fix "Bucket Already Exists" error by importing it if missing from state
+                    script {
+                        def bucketName = "shrik-s3-bucket-96741"
+                        sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Bucket already in state or not found'"
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-cred-id',
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                    // Apply will only create if the resources don't exist in the state
                     sh 'terraform apply -auto-approve'
                 }
             }
         }
-}
+ 
  stage('build imgage') {
      steps {
 
@@ -43,7 +61,7 @@ stage('Terraform') {
       withCredentials([usernamePassword(
       credentialsId:"dockerhub-cred-id",
       usernameVariable: "USER",
-      passwordVariable:"PASS"
+      passwordVariable: "PASS"
 
    )]) {
        sh '''
