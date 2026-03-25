@@ -7,7 +7,7 @@ provider "aws" {
 #create s3 bucket 
 resource "aws_s3_bucket" "my_bucket" {
 bucket = "shrik-s3-bucket-96741"
-acl    = "private"
+
 }
 resource "aws_instance" "my_ec2" {
 ami            ="ami-017535a27f2ac0ce3"
