@@ -15,7 +15,7 @@ environment {
 
       }
        }
-stage('Terraform') {
+stage('Terraform Init & Import') {
     steps {
         withCredentials([[
             $class: 'AmazonWebServicesCredentialsBinding',
@@ -23,9 +23,30 @@ stage('Terraform') {
             accessKeyVariable: 'AWS_ACCESS_KEY_ID',
             secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
-            // Use 'dir' to point to the folder containing your .tf files
+            // 1. THIS IS THE FIX: Tell Jenkins to go into the sub-folder
             dir('terraform-aws') { 
                 sh 'terraform init'
+                
+                script {
+                    def bucketName = "shrik-s3-bucket-96741"
+                    // Now this runs INSIDE terraform-aws folder
+                    sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Already in state'"
+                }
+            }
+        }
+    }
+}
+
+stage('Terraform Apply') {
+    steps {
+        withCredentials([[
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: 'aws-cred-id',
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+            // 2. MUST also use 'dir' here for apply to find the files
+            dir('terraform-aws') {
                 sh 'terraform apply -auto-approve'
             }
         }
