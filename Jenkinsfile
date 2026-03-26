@@ -89,21 +89,21 @@ script {
             
             dir('terraform-aws') {
                 // Get the raw IP from the output we just defined
-               env.ec2_ip = sh(script: "terraform output -raw ec2_public_ip", returnStdout: true).trim()
+               env.EC2_IP = sh(script: "terraform output -raw ec2_public_ip", returnStdout: true).trim()
             }
             
-            if (env.ec2_ip == "" || env.ec2_ip.contains("Warning")) {
+            if (env.EC2_IP == "" || env.EC2_IP.contains("Warning")) {
                 error "Could not find EC2 IP. Check if Terraform Apply was successful."
             }
 
-            echo "Target IP: ${env.ec2_ip}"
+            echo "Target IP: ${env.EC2_IP}"
        sshagent(['ec2-key']){
           sh """
-          ssh -o StrictHostKeyChecking=no ec2-user@${env.ec2_ip} " 
+          ssh -o StrictHostKeyChecking=no ec2-user@${env.EC2_IP} ' 
           docker rm -f myweb2 || true &&
           docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  --name myweb2 shrikant155/webapp2:latest
-           "  
+           '
           """
 
           } 
