@@ -55,25 +55,6 @@ ami            ="ami-017535a27f2ac0ce3"
 instance_type  ="t3.micro"
 key_name = "shrik-1234"
 vpc_security_group_ids = [aws_security_group.web_sg1.id]
- # install Docker on first boot
-user_data = <<-EOF
-#!/bin/bash
-# Wait for network
-sleep 60
-
-# Log output for debugging
-exec > /home/ec2-user/user_data.log 2>&1
-
-# Update system and install Docker
-yum update -y
-amazon-linux-extras enable docker
-amazon-linux-extras install docker -y
-systemctl start docker
-systemctl enable docker
-usermod -aG docker ec2-user
-
-echo "Docker installed successfully at $(date)" >> /home/ec2-user/user_data.log
-EOF
 tags = {
  Name = "terraform-ec2-shrik"
 }

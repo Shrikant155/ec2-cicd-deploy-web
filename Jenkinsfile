@@ -26,7 +26,7 @@ stage('Terraform Init & Import') {
             // 1. THIS IS THE FIX: Tell Jenkins to go into the sub-folder
             dir('terraform-aws') { 
                 sh 'terraform init -reconfigure'
-                
+                sh 'terraform plan'
                 script {
                     def bucketName = "shrik-s3-bucket-96741"
                     // Now this runs INSIDE terraform-aws folder
