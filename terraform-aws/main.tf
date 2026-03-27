@@ -55,6 +55,25 @@ ami            ="ami-017535a27f2ac0ce3"
 instance_type  ="t3.micro"
 key_name = "shrik-1234"
 vpc_security_group_ids = [aws_security_group.web_sg1.id]
+user_data = <<-EOF
+#!/bin/bash
+yum update -y
+
+# Enable and install Docker
+amazon-linux-extras enable docker
+yum install -y docker
+
+# Start Docker service
+systemctl start docker
+systemctl enable docker
+
+# Add ec2-user to docker group
+usermod -aG docker ec2-user
+
+# Optional: log for debugging
+echo "Docker setup completed" > /home/ec2-user/setup.log
+EOF
+  user_data_replace_on_change = true
 tags = {
  Name = "terraform-ec2-shrik"
 }

@@ -47,7 +47,8 @@ stage('Terraform Apply') {
         ]]) {
             // 2. MUST also use 'dir' here for apply to find the files
             dir('terraform-aws') {
-                sh 'terraform apply -auto-approve'
+                  
+             sh 'terraform apply -auto-approve'
             }
         }
     }
