@@ -101,9 +101,8 @@ sleep(time: 300, unit: 'SECONDS')
        sshagent(['ec2-key']){
           sh """
           ssh -o StrictHostKeyChecking=no ec2-user@${env.EC2_IP} ' 
-          sudo systemctl start docker
-          sudo systemctl enable docker
           sudo docker system  prune -a -f --volumes
+ until command -v docker >/dev/null 2>&1; do echo "Waiting for docker..."; sleep 2; done
           docker rm -f myweb2 || true &&
           docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  --name myweb2 shrikant155/webapp2:latest

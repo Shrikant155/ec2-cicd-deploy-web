@@ -58,12 +58,14 @@ vpc_security_group_ids = [aws_security_group.web_sg1.id]
  # install Docker on first boot
 user_data = <<-EOF
               #!/bin/bash
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ec2-user
-              EOF 
+              yum update -y
+              yum install -y docker
+              systemctl start docker
+              systemctl enable docker
+              usermod -aG docker ec2-user
+              # Ensure the socket has correct permissions immediately
+              chmod 666 /var/run/docker.sock
+              EOF
 tags = {
  Name = "terraform-ec2-shrik"
 }
