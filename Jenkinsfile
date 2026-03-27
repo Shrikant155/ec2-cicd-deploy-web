@@ -100,6 +100,11 @@ script {
        sshagent(['ec2-key']){
           sh """
           ssh -o StrictHostKeyChecking=no ec2-user@${env.EC2_IP} ' 
+            if ! command -v docker &> /dev/null; then
+        sudo yum update -y && sudo yum install -y docker
+        sudo systemctl start docker
+        sudo usermod -aG docker ec2-user
+    fi
           docker rm -f myweb2 || true &&
           docker pull shrikant155/webapp2:latest &&
           docker  run -d -p 8081:80  --name myweb2 shrikant155/webapp2:latest
