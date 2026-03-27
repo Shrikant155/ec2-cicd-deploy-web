@@ -53,6 +53,7 @@ resource "aws_security_group" "web_sg1" {
 resource "aws_instance" "my_ec2" {
 ami            ="ami-017535a27f2ac0ce3"
 instance_type  ="t3.micro"
+key_name = "ec2-key"
 vpc_security_group_ids = [aws_security_group.web_sg1.id]
    
  
