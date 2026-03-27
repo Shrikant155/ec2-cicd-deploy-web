@@ -57,15 +57,23 @@ key_name = "shrik-1234"
 vpc_security_group_ids = [aws_security_group.web_sg1.id]
  # install Docker on first boot
 user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              yum install -y docker
-              systemctl start docker
-              systemctl enable docker
-              usermod -aG docker ec2-user
-              # Ensure the socket has correct permissions immediately
-              chmod 666 /var/run/docker.sock
-              EOF
+#!/bin/bash
+# Wait for network
+sleep 60
+
+# Log output for debugging
+exec > /home/ec2-user/user_data.log 2>&1
+
+# Update system and install Docker
+yum update -y
+amazon-linux-extras enable docker
+amazon-linux-extras install docker -y
+systemctl start docker
+systemctl enable docker
+usermod -aG docker ec2-user
+
+echo "Docker installed successfully at $(date)" >> /home/ec2-user/user_data.log
+EOF
 tags = {
  Name = "terraform-ec2-shrik"
 }
