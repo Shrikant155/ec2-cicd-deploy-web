@@ -5,11 +5,6 @@ provider "aws" {
      region = "eu-north-1"
 }
 
-#create s3 bucket 
-resource "aws_s3_bucket" "my_bucket" {
-bucket = "shrik-s3-bucket-96741"
-
-}
 
 # This tells Terraform to save the IP so Jenkins can read it
 output "ec2_public_ip" {
