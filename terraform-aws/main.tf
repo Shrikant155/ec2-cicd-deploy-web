@@ -56,20 +56,22 @@ instance_type  ="t3.micro"
 key_name = "shrik-1234"
 vpc_security_group_ids = [aws_security_group.web_sg1.id]
 user_data = <<-EOF
-#!/bin/bash
-yum update -y
-
-# Enable and install Docker
-amazon-linux-extras enable docker
-yum install -y docker
-
-# Start Docker service
-systemctl start docker
-systemctl enable docker
-
-# Add ec2-user to docker group
-usermod -aG docker ec2-user
-
+              #!/bin/bash
+              yum update -y
+              # Check if amazon-linux-extras exists (AL2) or use dnf (AL2023)
+              if command -v amazon-linux-extras >/dev/null; then
+                  amazon-linux-extras enable docker
+                  yum install -y docker
+              else
+                  yum install -y docker
+              fi
+              
+              systemctl start docker
+              systemctl enable docker
+              usermod -aG docker ec2-user
+              # Ensure the socket is accessible
+              chmod 666 /var/run/docker.sock
+              EOF
 # Optional: log for debugging
 echo "Docker setup completed" > /home/ec2-user/setup.log
 EOF
