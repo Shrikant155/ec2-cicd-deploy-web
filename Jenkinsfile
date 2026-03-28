@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    triggers {
+    githubPush()
+}
 environment {
         // This binds the keys to the standard Terraform environment variables
         AWS_CREDS = credentials('aws-cred-id')
