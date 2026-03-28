@@ -25,6 +25,7 @@ stage('Terraform Init & Import') {
         ]]) {
             // 1. THIS IS THE FIX: Tell Jenkins to go into the sub-folder
             dir('terraform-aws') { 
+                 sh 'rm -rf .terraform'  
                 sh 'terraform init -reconfigure'
                 sh 'terraform plan'
             }
