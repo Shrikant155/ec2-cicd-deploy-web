@@ -27,11 +27,6 @@ stage('Terraform Init & Import') {
             dir('terraform-aws') { 
                 sh 'terraform init -reconfigure'
                 sh 'terraform plan'
-                script {
-                    def bucketName = "shrik-s3-bucket-96741"
-                    // Now this runs INSIDE terraform-aws folder
-                    sh "terraform import aws_s3_bucket.my_bucket ${bucketName} || echo 'Already in state'"
-                }
             }
         }
     }
