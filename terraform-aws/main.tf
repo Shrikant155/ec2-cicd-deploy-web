@@ -1,4 +1,11 @@
 # main.tf
+terraform {
+  backend "s3" {
+    bucket = "shrik-s3-bucket-96741"
+    key    = "project2/terraform.tfstate"
+    region = "eu-north-1"
+  }
+}
 provider "aws" {
 
      region = "eu-north-1"
